@@ -287,7 +287,10 @@ window.addEventListener('DOMContentLoaded', () => {
                 } else {
                     if (grid[i][j]) {
                         if (!e) return false;
-                        if (e && displayGrid[i][j].classList.contains('crossed')) incorrectbanner();
+                        if (displayGrid[i][j].classList.contains('crossed')) {
+                            incorrectbanner();
+                            return false;
+                        }
                     }
                 }
             }
