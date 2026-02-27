@@ -35,10 +35,12 @@ window.addEventListener('DOMContentLoaded', () => {
 
     generateGrid();
 
-    let timerInterval = setInterval(() => {
+    let timerInterval = setInterval(timer, 1000)
+
+    function timer() {
         timeinsec++;
         timerDisplay.innerText = formatTime(timeinsec)
-    }, 1000)
+    }
 
     function formatTime(sec) {
         const h = String(Math.floor(sec / 3600)).padStart(2, '0');
@@ -263,6 +265,8 @@ window.addEventListener('DOMContentLoaded', () => {
         generateGrid();
         clearInterval(timerInterval)
         timeinsec = 0;
+        timerDisplay.innerText = '00:00:00'
+        timerInterval = setInterval(timer, 1000);
     }
 
     function incorrectbanner() {
