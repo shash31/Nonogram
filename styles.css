@@ -40,6 +40,10 @@ main {
     place-content: center;
 }
 
+#timer {
+    padding-bottom: 1em;
+}
+
 #nonogram {
     margin: auto;
     /* aspect-ratio: 1 / 1; */

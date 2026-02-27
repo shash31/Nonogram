@@ -5,6 +5,9 @@ window.addEventListener('DOMContentLoaded', () => {
     const tableBody = document.createElement('tbody')
     let displayGrid = null
     
+    const timerDisplay = document.getElementById('timer')
+    let timeinsec = 0;
+
     const resetbtn = document.getElementById('reset-game-button')
     const checkbtn = document.getElementById('check-game-button')
     const newgamebtn = document.getElementById('new-game-button')
@@ -31,6 +34,18 @@ window.addEventListener('DOMContentLoaded', () => {
     const confetti = new JSConfetti();
 
     generateGrid();
+
+    let timerInterval = setInterval(() => {
+        timeinsec++;
+        timerDisplay.innerText = formatTime(timeinsec)
+    }, 1000)
+
+    function formatTime(sec) {
+        const h = String(Math.floor(sec / 3600)).padStart(2, '0');
+        const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+        const s = String(sec % 60).padStart(2, '0');
+        return `${h}:${m}:${s}`;
+    }
 
     function generateGrid() {
         grid = Array.from({ length: size }, () => [])
@@ -246,6 +261,8 @@ window.addEventListener('DOMContentLoaded', () => {
         status.remove()
         setDiff();
         generateGrid();
+        clearInterval(timerInterval)
+        timeinsec = 0;
     }
 
     function incorrectbanner() {
@@ -276,8 +293,9 @@ window.addEventListener('DOMContentLoaded', () => {
             status.className = 'correct'
             status.innerText = 'Solution is correct so far!'
         } else {
+            clearInterval(timerInterval)
             status.className = 'win'
-            status.innerText = 'Congrats!!'
+            status.innerText = `Congrats!! You solved it in ${timerDisplay.innerText}`
             confetti.addConfetti();
             gameOver = true;
         }
