@@ -1,0 +1,126 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    /* outline: 1px solid; */
+    /* font-family: Arial, sans-serif; */
+}
+
+/* :root {
+    --primary-color:
+    --secondary-color:
+
+    --grid
+} */
+
+body {
+    display: flex;
+    flex-direction: column;
+
+    min-height: 100vh;
+    place-items: center;
+
+    /* background-color: snow; */
+}
+
+header {
+    /* height: 5em; */
+    width: 100%;
+    text-align: center;
+    border-bottom: solid;
+    padding: 1em 0;
+}
+
+main {
+    width: 100%;
+}
+
+#game {
+    place-items: center;
+    place-content: center;
+}
+
+#nonogram {
+    margin: auto;
+    /* aspect-ratio: 1 / 1; */
+    border: 2px solid;
+    border-collapse: collapse;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+
+.rowno {
+    /* width: 100%; */
+    white-space: nowrap;
+}
+
+th {
+    border: 2px solid;
+}
+
+td {
+    border: 1px solid;
+}
+
+th, td {
+    aspect-ratio: 1 / 1;
+    height: 2em;
+    width: 2em;
+    text-align: center;
+    /* padding: 0.5em; */
+}
+
+.rowfives {
+    border-bottom: 2px solid;
+}
+
+.colfives {
+    border-right: 2px solid;
+}
+
+.clicked {
+    background-color: black;
+}
+
+.crossed {
+    color: red;
+    border-color: black;
+}
+
+#status {
+
+    margin-top: 0.5em;
+    padding-top: 0.5em;
+    /* width: fit-content;
+    text-align: center; */
+}
+
+#status.win {
+    /* background-color: green; */
+    color: green;
+}
+
+#status.incorrect {
+    /* background-color: lightcoral; */
+    color: red;
+}
+
+#status.correct {
+    /* background-color: aquamarine; */
+    color: green;
+}
+
+section {
+    margin: 0.5em 0;
+    padding: 0.5em 0;
+    text-align: center;
+}
+
+button {
+    padding: 0.2em 0.5em;
+    height: 3em;
+    /* width: 100%; */
+    width: fit-content;
+    font-size: 14px;
+}
