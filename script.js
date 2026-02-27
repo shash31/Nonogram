@@ -1,12 +1,9 @@
 window.addEventListener('DOMContentLoaded', () => {
     const game = document.getElementById('game')
     const table = document.getElementById('nonogram')
-    const diff = document.getElementById('difficulty-select')
+    const diffSelect = document.getElementById('difficulty-select')
     const tableBody = document.createElement('tbody')
     let displayGrid = null
-    
-    const timerDisplay = document.getElementById('timer')
-    let timeinsec = 0;
 
     const resetbtn = document.getElementById('reset-game-button')
     const checkbtn = document.getElementById('check-game-button')
@@ -22,6 +19,7 @@ window.addEventListener('DOMContentLoaded', () => {
     let colnos = null;
     let rownos = null;
     let size = 5;
+    let difficulty = 'Easy';
     
     // For detecting dragging;
     let leftclicked = false;
@@ -35,6 +33,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
     generateGrid();
 
+    const timerDisplay = document.getElementById('timer')
+    let timeinsec = 0;
     let timerInterval = setInterval(timer, 1000)
 
     function timer() {
@@ -229,8 +229,6 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // function 
-
     function reset() {
         for (let i = 0; i < size; i++) {
             for (let j = 0; j < size; j++) {
@@ -245,12 +243,15 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     function setDiff() {
-        if (diff.value == 'easy') {
+        if (diffSelect.value == 'easy') {
             size = 5;
-        } else if (diff.value == 'medium') {
+            difficulty = 'Easy'
+        } else if (diffSelect.value == 'medium') {
             size = 10;
-        } else if (diff.value == 'hard') {
+            difficulty = 'Medium'
+        } else if (diffSelect.value == 'hard') {
             size = 15;
+            difficulty = 'Hard'
         }
     }
 
@@ -273,6 +274,11 @@ window.addEventListener('DOMContentLoaded', () => {
         status.className = 'incorrect'
         status.innerText = 'Something is wrong with the solution'
         if (!status.isConnected) game.appendChild(status)
+    }
+
+    function newpb() {
+        localStorage.setItem(`${difficulty}PB`, timeinsec)
+        status.innerText = 'Congrats!! '+status.innerText+`New Personal Best for ${difficulty}`
     }
 
     function validate(e=null) {
@@ -302,7 +308,17 @@ window.addEventListener('DOMContentLoaded', () => {
         } else {
             clearInterval(timerInterval)
             status.className = 'win'
-            status.innerText = `Congrats!! You solved it in ${timerDisplay.innerText}`
+            status.innerText = `You solved it in ${timerDisplay.innerText}\n`
+            const pb = localStorage.getItem(`${difficulty}PB`);
+            if (pb) {
+                if (timeinsec < pb) {
+                    newpb();
+                } else {
+                    status.innerText += `Personal Best for ${difficulty}: ${formatTime(pb)}`
+                }
+            } else {
+                newpb();
+            }
             confetti.addConfetti();
             gameOver = true;
         }
