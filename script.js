@@ -26,7 +26,13 @@ window.addEventListener('DOMContentLoaded', () => {
     let rightclicked = false;
     tableBody.addEventListener('contextmenu', (e) => e.preventDefault())
     tableBody.addEventListener('pointerdown', pressed)
-    tableBody.addEventListener('pointerup', unpressed)
+    window.addEventListener('pointerup', unpressed)
+    window.addEventListener('pointercancel', unpressed)
+    window.addEventListener('blur', unpressed)
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) unpressed()
+    })
+    let activePointerId = null;
     let gameOver = false;
 
     const confetti = new JSConfetti();
@@ -175,18 +181,22 @@ window.addEventListener('DOMContentLoaded', () => {
             if (!e.target.classList.contains('rowno')) {
                 if (e.button == 0) {
                     leftclicked = true;
+                    activePointerId = e.pointerId;
                     click(e.target)
                 } else if (e.button == 2) {
                     rightclicked = true;
+                    activePointerId = e.pointerId;
                     rightclick(e.target)
                 }
             }
         }
     }
 
-    function unpressed() {
+    function unpressed(e = null) {
+        if (e && activePointerId !== null && e.pointerId !== undefined && e.pointerId !== activePointerId) return;
         leftclicked = false;
         rightclicked = false;
+        activePointerId = null;
     }
     
     function click(cell) {
@@ -208,6 +218,12 @@ window.addEventListener('DOMContentLoaded', () => {
 
     function drag(e) {
         const cell = e.currentTarget
+        if (e.buttons === 0) {
+            unpressed()
+            return;
+        }
+        if (leftclicked && (e.buttons & 1) === 0) leftclicked = false;
+        if (rightclicked && (e.buttons & 2) === 0) rightclicked = false;
         if (leftclicked) {
             click(cell)
         } else if (rightclicked) {
