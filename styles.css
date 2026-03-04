@@ -125,6 +125,15 @@ section {
     text-align: center;
 }
 
+#custom-diff {
+    margin: 0;
+    padding: 0;
+}
+
+#custom-diff.hidden {
+    display: none;
+}
+
 button {
     padding: 0.2em 0.5em;
     height: 3em;

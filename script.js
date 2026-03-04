@@ -2,6 +2,8 @@ window.addEventListener('DOMContentLoaded', () => {
     const game = document.getElementById('game')
     const table = document.getElementById('nonogram')
     const diffSelect = document.getElementById('difficulty-select')
+    const customDiff = document.getElementById('custom-diff')
+    const customDiffInput = document.getElementById('custom-size')
     const tableBody = document.createElement('tbody')
     let displayGrid = null
 
@@ -20,6 +22,14 @@ window.addEventListener('DOMContentLoaded', () => {
     let rownos = null;
     let size = 5;
     let difficulty = 'Easy';
+
+    diffSelect.addEventListener('change', (event) => {
+        if (event.target.value == 'custom') {
+            customDiff.classList.remove('hidden')
+        } else {
+            if (!customDiff.classList.contains('hidden')) customDiff.classList.add('hidden')
+        }
+    })
     
     // For detecting dragging;
     let leftclicked = false;
@@ -70,7 +80,7 @@ window.addEventListener('DOMContentLoaded', () => {
         }
 
         // Populating grid
-        const min = Math.floor((size**2)*(3/10)) // 30% of grid covered
+        const min = Math.floor((size**2)*(7/20)) // 35% of grid covered
         const max = Math.ceil((size**2)*(3/4)) // 75% of grid covered
         console.log('min', min)
         console.log('max', max)
@@ -433,13 +443,26 @@ window.addEventListener('DOMContentLoaded', () => {
     function setDiff() {
         if (diffSelect.value == 'easy') {
             size = 5;
-            difficulty = 'Easy'
+            difficulty = 'Easy';
+            return true;
         } else if (diffSelect.value == 'medium') {
             size = 10;
-            difficulty = 'Medium'
+            difficulty = 'Medium';
+            return true;;
         } else if (diffSelect.value == 'hard') {
             size = 15;
-            difficulty = 'Hard'
+            difficulty = 'Hard';
+            return true;
+        } else if (diffSelect.value == 'custom') {
+            if (customDiffInput.value) {
+                size = customDiffInput.value;
+                console.log(customDiffInput.value)
+                difficulty = `Custom(${size}x${size})`
+                return true;
+            } else {
+                incorrectbanner('Please Enter Grid Size')
+                return false;
+            }
         }
     }
 
@@ -450,17 +473,22 @@ window.addEventListener('DOMContentLoaded', () => {
         tableBody.replaceChildren();
         gameOver = false;
         status.remove()
-        setDiff();
-        generateGrid();
-        clearInterval(timerInterval)
-        timeinsec = 0;
-        timerDisplay.innerText = '00:00:00'
-        timerInterval = setInterval(timer, 1000);
+        if (setDiff()) {
+            generateGrid();
+            clearInterval(timerInterval)
+            timeinsec = 0;
+            timerDisplay.innerText = '00:00:00'
+            timerInterval = setInterval(timer, 1000);
+        }
     }
 
-    function incorrectbanner() {
+    function incorrectbanner(text=null) {
         status.className = 'incorrect'
-        status.innerText = 'Something is wrong with the solution'
+        if (!text) {
+            status.innerText = 'Something is wrong with the solution'
+        } else {
+            status.innerText = text
+        }
         if (!status.isConnected) game.appendChild(status)
     }
 

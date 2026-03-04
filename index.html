@@ -21,11 +21,17 @@
             <section id="settings">
                 <label for="difficulty-select">Select difficulty: </label>
                 <select id="difficulty-select">
+                    <option value="" disabled>--Select Difficulty for New Game--</option>
                     <option value="easy">Easy (5x5)</option>
                     <option value="medium">Medium (10x10)</option>
                     <option value="hard">Hard (15x15)</option>
+                    <option value="custom">Custom (Choose your own)</option>
                 </select>
             </section>
+            <section id="custom-diff" class="hidden">
+                <label for="custom-size">Enter grid size and click new puzzle:</label>
+                <input id="custom-size" type="number" />
+            </section> 
             <section id="buttons">
                 <button id="reset-game-button">Start over</button>
                 <button id="check-game-button">Check Puzzle</button>
