@@ -138,11 +138,15 @@ window.addEventListener('DOMContentLoaded', () => {
         colheaders.appendChild(document.createElement('th'))
         for (const col of colnos) {
             const th = document.createElement('th')
-            for (const nos of col) {
-                th.innerText += String(nos)+'\n'
+            if (col[0] == 0) {
+                th.innerHTML = '<span class=grayed>0</span>'
+            } else {
+                for (const nos of col) {
+                    th.innerHTML += String(nos) + '<br>'
+                }
             }
-            th.rowSpan = col.length
             colheaders.appendChild(th)
+            col.push(th) // For future reference
         }
 
         // Creating display
@@ -150,11 +154,16 @@ window.addEventListener('DOMContentLoaded', () => {
             const row = document.createElement('tr')
             
             const rowno = document.createElement('th');
-            for (const nos of rownos[i]) {
-                rowno.innerText += String(nos) + ' '
+            if (rownos[i][0] == 0) {
+                rowno.innerHTML = '<span class=grayed>0</span>'
+            } else {
+                for (const nos of rownos[i]) {
+                    rowno.innerText += String(nos) + ' '
+                }
             }
             rowno.classList.add('rowno')
             row.appendChild(rowno)
+            rownos[i].push(rowno) // For future reference
 
             if (((i + 1) % 5) == 0) row.classList.add('rowfives')
             
@@ -162,7 +171,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 const cell = document.createElement('td')
                 cell.dataset.x = i
                 cell.dataset.y = j
-                cell.addEventListener('pointerover', drag)
+                cell.addEventListener('pointerenter', drag)
                 if (((j + 1) % 5) == 0) cell.classList.add('colfives')
                 displayGrid[i].push(cell)
                 row.appendChild(cell)
@@ -178,15 +187,17 @@ window.addEventListener('DOMContentLoaded', () => {
 
     function pressed(e) {
         if (!gameOver) {
-            if (!e.target.classList.contains('rowno')) {
+            const elementTarget = e.target.nodeType === Node.ELEMENT_NODE ? e.target : e.target.parentElement;
+            const cell = elementTarget ? elementTarget.closest('td') : null;
+            if (cell) {
                 if (e.button == 0) {
                     leftclicked = true;
                     activePointerId = e.pointerId;
-                    click(e.target)
+                    click(cell)
                 } else if (e.button == 2) {
                     rightclicked = true;
                     activePointerId = e.pointerId;
-                    rightclick(e.target)
+                    rightclick(cell)
                 }
             }
         }
@@ -204,12 +215,14 @@ window.addEventListener('DOMContentLoaded', () => {
             cell.classList.remove('clicked')
             cell.classList.add('crossed')
             cell.innerHTML = '&times;';
+            grayOutNos(cell)
         } else {
             if (cell.classList.contains('crossed')) {
                 cell.classList.remove('crossed');
                 cell.innerText = '';
             } else {
                 cell.classList.add('clicked')
+                grayOutNos(cell)
                 // check win
                 validate()
             }
@@ -238,6 +251,7 @@ window.addEventListener('DOMContentLoaded', () => {
         } else {
             if (cell.classList.contains('clicked')) {
                 cell.classList.remove('clicked')
+                grayOutNos(cell)
             } else {
                 cell.classList.add('crossed')
                 cell.innerHTML = '&times;';
@@ -245,8 +259,166 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function grayOutNos(cell) {
+        let rcheck = true;
+        let ccheck = true;
+        if (rownos[cell.dataset.x][0] == 0) rcheck = false;
+        if (colnos[cell.dataset.y][0] == 0) ccheck = false;
+        if (!(rcheck || ccheck)) return;
+        // Checking column for potentially graying out numbers
+        let rcount = []
+        let rind = -1
+        let rtrues = false
+        let ccount = []
+        let cind = -1
+        let ctrues = false
+        for (let i = 0; i < size; i++) {
+            if (!rtrues) {
+                if (displayGrid[cell.dataset.x][i].classList.contains('clicked')) {
+                    rtrues = true;
+                    rind++;
+                    rcount.push(1)
+                }
+            } else {
+                if (displayGrid[cell.dataset.x][i].classList.contains('clicked')) {
+                    rcount[rind]++;
+                } else {
+                    rtrues = false;
+                }
+            }
+
+            if (!ctrues) {
+                if (displayGrid[i][cell.dataset.y].classList.contains('clicked')) {
+                    ctrues = true;
+                    cind++;
+                    ccount.push(1)
+                }
+            } else {
+                if (displayGrid[i][cell.dataset.y].classList.contains('clicked')) {
+                    ccount[cind]++;
+                } else {
+                    ctrues = false;
+                }
+            }
+        }
+
+        const rnos = rownos[cell.dataset.x].slice(0, -1)
+        const cnos = colnos[cell.dataset.y].slice(0, -1)
+
+        let rfmatch = true;
+        let cfmatch = true;
+        let rbmatch = true;
+        let cbmatch = true;
+        let rfind = -1;
+        let rbind = -1;
+        let cfind = -1;
+        let cbind = -1;
+        for (let i = 0; i < size; i++) {
+            if (!(rfmatch || cfmatch || rbmatch || cbmatch)) break;
+            
+            if (rfmatch || rbmatch) {
+                if ((i < rnos.length) && (i < rcount.length)) {
+                    if (rfmatch) {
+                        if (rnos[i] == rcount[i]) {
+                            rfind++;
+                        } else {
+                            rfmatch = false
+                        }
+                    }
+                    if (rbmatch) {
+                        if (rnos[rnos.length-1-i] == rcount[rcount.length-1-i]) {
+                            rbind++;
+                        } else {
+                            rbmatch = false
+                        }
+                    }
+                } else {
+                    if (rnos.length == rcount.length) {
+                        crossOutLine({i:cell.dataset.x})
+                    }
+                    rfmatch = false; rbmatch = false;
+                }
+            }
+
+            if (cfmatch || cbmatch) {
+                if ((i < cnos.length) && (i < ccount.length)) {
+                    if (cfmatch) {
+                        if (cnos[i] == ccount[i]) {
+                            cfind++;
+                        } else {
+                            cfmatch = false;
+                        }
+                    } 
+                    if (cbmatch) {
+                        if (cnos[cnos.length-1-i] == ccount[ccount.length-1-i]) {
+                            cbind++;
+                        } else {
+                            cbmatch = false
+                        }
+                    }
+                } else {
+                    if (cnos.length == ccount.length) {
+                        crossOutLine({j:cell.dataset.y})
+                    }
+                    cfmatch = false; cbmatch = false;
+                }
+            }
+        }
+
+        if (rfind == rbind) {
+            if (cell.dataset.y > Number(size / 2)) {
+                replaceSpanTill(rnos, rbind+1, true)
+            } else {
+                replaceSpanTill(rnos, rfind+1)
+            }
+        } else {
+            if (rfind > rbind) replaceSpanTill(rnos, rfind+1)
+            if (rbind > rfind) replaceSpanTill(rnos, rbind+1, true)
+        }
+
+        if (cfind == cbind) {
+            if (cell.dataset.x > Number(size / 2)) {
+                replaceSpanTill(cnos, cbind+1, true)
+            } else {
+                replaceSpanTill(cnos, cfind+1)
+            }
+        } else {
+            if (cfind > cbind) replaceSpanTill(cnos, cfind+1)
+            if (cbind > cfind) replaceSpanTill(cnos, cbind+1, true)
+        }
+
+        rownos[cell.dataset.x].at(-1).innerHTML = rnos.join(' ')
+        colnos[cell.dataset.y].at(-1).innerHTML = cnos.join('<br>')
+    }
+
+    function replaceSpanTill(arr, end, backward=false) {
+        for (let i = 0; i < end; i++) {
+            if (!backward) arr[i] = `<span class=grayed>${arr[i]}</span>`
+            if (backward) arr[arr.length-1-i] = `<span class=grayed>${arr[arr.length-1-i]}</span>`
+        }
+    }
+
+    function crossOutLine({i=null, j=null}) {
+        function crossIfClicked(cell) {
+            if (!(cell.classList.contains('clicked'))) {
+                cell.classList.add('crossed');
+                cell.innerHTML = '&times';
+            }
+        }
+
+        for (let a = 0; a < size; a++) {
+            if (i) {
+                crossIfClicked(displayGrid[i][a])
+            } else {
+                crossIfClicked(displayGrid[a][j])
+            }
+        }
+    }
+
     function reset() {
         for (let i = 0; i < size; i++) {
+            rownos[i].at(-1).innerHTML = rownos[i].slice(0, -1).join(' ')
+            colnos[i].at(-1).innerHTML = colnos[i].slice(0, -1).join('<br>')
             for (let j = 0; j < size; j++) {
                 displayGrid[i][j].classList.remove('clicked')
                 displayGrid[i][j].classList.remove('crossed')
@@ -294,7 +466,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     function newpb() {
         localStorage.setItem(`${difficulty}PB`, timeinsec)
-        status.innerText = 'Congrats!! '+status.innerText+`New Personal Best for ${difficulty}`
+        status.innerHTML = 'Congrats!! '+status.innerHTML+`New Personal Best for ${difficulty}`
     }
 
     function validate(e=null) {
@@ -324,13 +496,13 @@ window.addEventListener('DOMContentLoaded', () => {
         } else {
             clearInterval(timerInterval)
             status.className = 'win'
-            status.innerText = `You solved it in ${timerDisplay.innerText}\n`
+            status.innerHTML = `You solved it in ${timerDisplay.innerText}<br>`
             const pb = localStorage.getItem(`${difficulty}PB`);
             if (pb) {
                 if (timeinsec < pb) {
                     newpb();
                 } else {
-                    status.innerText += `Personal Best for ${difficulty}: ${formatTime(pb)}`
+                    status.innerHTML += `Personal Best for ${difficulty}: ${formatTime(pb)}`
                 }
             } else {
                 newpb();

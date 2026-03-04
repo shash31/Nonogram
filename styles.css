@@ -55,8 +55,11 @@ main {
 }
 
 .rowno {
-    /* width: 100%; */
     white-space: nowrap;
+}
+
+.grayed {
+    color: grey;
 }
 
 th {
